@@ -39,4 +39,5 @@ in {
   # Nomad cluster
   "consul-encrypt.age".publicKeys = users ++ nomad-cluster;
   "nomad-encrypt.age".publicKeys = users ++ nomad-cluster;
+  "vault-unseal.age".publicKeys = users ++ nomad-cluster;
 }

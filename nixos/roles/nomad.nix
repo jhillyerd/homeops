@@ -86,10 +86,14 @@ in {
           bind_addr = ''{{ GetInterfaceIP "${catalog.tailscale.interface}" }}'';
         };
       };
+
+      environment.systemPackages = [ pkgs.vault ];
     })
 
     # Nomad server config.
     (mkIf cfg.enableServer {
+      age.secrets.vault-unseal.file = ../secrets/vault-unseal.age;
+
       services.consul = {
         webUi = true;
 
@@ -98,6 +102,14 @@ in {
           bootstrap_expect = 3;
           client_addr = "0.0.0.0";
         };
+      };
+
+      services.vault = {
+        enable = true;
+        storageBackend = "consul";
+        listenerExtraConfig = ''
+          tls_disable = "true"
+        '';
       };
 
       services.nomad = {
@@ -109,6 +121,26 @@ in {
         # Install extra HCL file to hold encryption key.
         extraSettingsPaths =
           [ config.roles.envfile.files."nomad-encrypt.hcl".file ];
+      };
+
+      # Unseal Vault at boot, fine for a home lab.
+      systemd.services.vault-unseal = {
+        script = ''
+          # Wait for vault to settle
+          sleep 2
+
+          SECRET="$(< ${config.age.secrets.vault-unseal.path})"
+          ${pkgs.curl}/bin/curl -s -X PUT -H "X-Vault-Request: true" -d @- \
+            http://127.0.0.1:8200/v1/sys/unseal <<EOT
+          {"key":"$SECRET","reset":false,"migrate":false}
+          EOT
+        '';
+
+        wantedBy = [ "multi-user.target" ];
+        after = [ "vault.service" ];
+        requires = [ "vault.service" ];
+        partOf = [ "vault.service" ];
+        serviceConfig = { Type = "oneshot"; };
       };
     })
 
