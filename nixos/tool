@@ -1,0 +1,94 @@
+#!/usr/bin/env fish
+# tool: swiss army knife for deploying/diagnosing hosts
+
+function host_data
+  host localhost --priv-ip 127.0.0.1
+  host ryzen --priv-ip 192.168.1.50
+end
+
+function main
+  while true
+    select_host selected 
+    manage_host $selected
+  end
+end
+
+function select_host -a var
+  set hosts (host_name_list)
+
+  while true
+    printf "\nHosts\n"
+    for i in (seq (count $hosts))
+      printf " %-2d: %s\n" $i $hosts[$i]
+    end
+
+    read -l -P "Host number to manage, q exits: " num
+
+    if test -z "$num" -o "$num" = q
+      exit
+    else if test -n "$hosts[$num]"
+      debug hmj
+      set -g $var $hosts[$num]
+      return
+    end
+  end
+end
+
+function manage_host -a host
+  debug get_host $host
+  get_host $host
+
+  while true
+    printf "\nManaging %s at %s\n" $host $ip
+
+    echo " d: deploy"
+    echo " s: status"
+    echo ""
+
+    read -l -P "Select operation, q exits: " cmd
+
+    switch $cmd
+      case d
+        ./deploy $host root@$ip
+      case s
+        ./status $host root@$ip
+      case ""
+        exit
+      case q
+        exit
+      case "*"
+        echo "Error, unknown command '$cmd'"
+    end
+  end
+end
+
+# Outputs a list of available hosts by name.
+function host_name_list
+  function host
+    echo $argv[1]
+  end
+
+  host_data | sort
+end
+
+# Extracts variables the for named host
+function get_host -a name
+  function host
+    argparse --min-args 1 "priv-ip=" -- $argv
+
+    if test "$argv[1]" != "$name"
+      return
+    end
+
+    set -g ip $_flag_priv_ip
+  end
+
+  set -g name $name
+  host_data
+end
+
+function debug
+  echo [DEBUG] $argv >&2
+end
+
+main
