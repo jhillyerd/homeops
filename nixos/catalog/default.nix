@@ -75,7 +75,7 @@
     }
     {
       section = "Cluster";
-      services = [ "consul" "nomad" "proxmox" "dockreg" ];
+      services = [ "cockroach" "consul" "nomad" "proxmox" "dockreg" ];
     }
     {
       section = "Infrastructure";

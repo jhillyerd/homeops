@@ -21,6 +21,14 @@
     lb.auth = "none";
   };
 
+  cockroach = {
+    title = "Cockroach DB";
+
+    dns.intCname = true;
+
+    dash.icon = "database";
+  };
+
   consul = {
     title = "Consul";
 

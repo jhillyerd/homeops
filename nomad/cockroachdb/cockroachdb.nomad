@@ -37,21 +37,21 @@ job "cockroachdb" {
       name = "cockroachdb-http"
       port = "http"
 
-      # tags = [
-      #   "http",
-      #   "traefik.enable=true",
-      #   "traefik.http.routers.cockroachdb-http.entrypoints=websecure",
-      #   "traefik.http.routers.cockroachdb-http.rule=Host(`cockroachdb.bytemonkey.org`)",
-      #   "traefik.http.routers.cockroachdb-http.tls.certresolver=letsencrypt",
-      # ]
+      tags = [
+        "http",
+        "traefik.enable=true",
+        "traefik.http.routers.cockroachdb-http.entrypoints=websecure",
+        "traefik.http.routers.cockroachdb-http.rule=Host(`cockroach.bytemonkey.org`)",
+        "traefik.http.routers.cockroachdb-http.tls.certresolver=letsencrypt",
+      ]
 
-      # check {
-      #   name = "CockroachDB HTTP Check"
-      #   type = "http"
-      #   path = "/health"
-      #   interval = "10s"
-      #   timeout = "2s"
-      # }
+      check {
+        name = "CockroachDB HTTP Check"
+        type = "http"
+        path = "/health"
+        interval = "10s"
+        timeout = "2s"
+      }
     }
 
     ephemeral_disk {
@@ -88,6 +88,8 @@ job "cockroachdb" {
         destination = "cockroachdb.env"
         env = true
 
+        # Generates node list from Consul; may require manually restarting
+        # allocs after a cold start.
         data = <<EOH
 JOINLIST=localhost{{- range service "cockroachdb-cluster" -}}
 ,{{ .Address }}:{{ .Port }}
