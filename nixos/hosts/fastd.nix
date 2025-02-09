@@ -28,12 +28,20 @@
     ensureDatabases = [
       "root"
       "gitea"
+      "forgejo"
     ];
+
     ensureUsers = [
       {
         name = "root";
         ensureDBOwnership = true;
         ensureClauses.superuser = true;
+        ensureClauses.login = true;
+      }
+      {
+        name = "forgejo";
+        ensureDBOwnership = true;
+        ensureClauses."inherit" = true;
         ensureClauses.login = true;
       }
       {
