@@ -76,14 +76,20 @@
     lb.backendUrls = [ "http://msdde3.home.arpa" ];
   };
 
-  gitea = {
-    title = "Gitea";
+  forgejo = {
+    title = "Forgejo";
 
     dns.intCname = true;
-    dns.extCname = true;
+    dns.extCname = false;
 
-    dash.icon = "svg/gitea.svg";
+    dash.icon = "svg/forgejo.svg";
     # Note: external + auth handled by labels.
+  };
+
+  git = {
+    # Used by forgejo SSH.
+    title = "Git";
+    dns.intCname = true;
   };
 
   grafana = {

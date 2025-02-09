@@ -15,7 +15,7 @@
       response_status_code = 200;
     }
     {
-      urls = [ "https://gitea.bytemonkey.org" ];
+      urls = [ "https://forgejo.bytemonkey.org" ];
       response_status_code = 200;
     }
     {

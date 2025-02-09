@@ -93,7 +93,7 @@ rec {
     {
       section = "Services";
       services = [
-        "gitea"
+        "forgejo"
         "grafana"
         "homeassistant"
         "inbucket"
